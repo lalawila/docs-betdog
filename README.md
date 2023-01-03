@@ -1,1 +1,4 @@
-# docs-betdog
+# 😁 About
+
+## What is BetDog?
+
