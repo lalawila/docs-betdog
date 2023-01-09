@@ -14,7 +14,7 @@ BetDog is a protocol for betting and prediction. It is designed around ease-of-u
 Github repository: [https://github.com/lalawila/betdog](https://github.com/lalawila/betdog)
 {% endhint %}
 
-## oracle
+## Oracle
 
 Odds list will be input by oracle such as chainlink when create condition.
 
