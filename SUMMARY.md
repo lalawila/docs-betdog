@@ -1,3 +1,3 @@
 # Table of contents
 
-* [😁 About](README.md)
+* [😁 BetDog](README.md)
