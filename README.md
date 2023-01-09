@@ -1,5 +1,9 @@
 # 😁 BetDog
 
+{% hint style="danger" %}
+**WORK IN PROGRESS**
+{% endhint %}
+
 ## Introduction
 
 BetDog is a protocol for betting and prediction. It is designed around ease-of-use, gas efficiency, and censorship resistance.
@@ -10,13 +14,11 @@ BetDog is a protocol for betting and prediction. It is designed around ease-of-u
 Github repository: [https://github.com/lalawila/betdog](https://github.com/lalawila/betdog)
 {% endhint %}
 
-{% hint style="danger" %}
-Project still in building.
-{% endhint %}
-
 ## oracle
 
-Odds will be input by oracle such as chainlink.
+Odds list will be input by oracle such as chainlink when create condition.
+
+The odds list example is `[4.27, 8.55, 1.42]`. That mean there are three outcomes. You will get `427` return if bet in outcome `0` . You will get `855` return if bet in outcome `1` . You will get `142` return if bet in outcome `2` .
 
 
 
