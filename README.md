@@ -6,9 +6,11 @@ BetDog is a protocol for betting and prediction. It is designed around ease-of-u
 
 
 
-The github repository: [https://github.com/lalawila/betdog](https://github.com/lalawila/betdog)
+{% hint style="success" %}
+Github repository: [https://github.com/lalawila/betdog](https://github.com/lalawila/betdog)
+{% endhint %}
 
-{% hint style="info" %}
+{% hint style="danger" %}
 Project still in building.
 {% endhint %}
 
