@@ -106,9 +106,9 @@ If the Apple team wins will get `reward + bet capital = 49.6` .  Actual odds is 
 
 
 
-The reward and bet capital will be returned right game over.
+The reward and bet capital will be returned when gaming is over.
 
-The latest reverses is `[1010, 3950.4]` now.   The latest odds is `[4.91128712871, 1.25567031187]` now.
+The latest reverses are`[1010, 3950.4]` now.   The latest odds is `[4.91128712871, 1.25567031187]` now.
 
 Apple team odds:  (1010 + 3950.4) / 1010 = 4.91128712871
 
@@ -116,26 +116,93 @@ Banana team odds:  (1010 + 3950.4) / 3950.4 = 1.25567031187
 
 #### What if the number of outcomes is greater than 2?
 
-There `x * y = z` seem can only deal with  2  outcomes.
+The bet reserve can be considered as x. Other sums can be considered as y.
+
+```solidity
+function addReserve(Condition.Info storage self, uint64 betIndex, uint256 amount) internal returns (uint256 reward) {
+    uint256 total = totalReserves(self);
+    uint256 anothersReserves = total - self.reserves[betIndex];
+
+    uint256 k = self.reserves[betIndex] * anothersReserves;
+
+    self.reserves[betIndex] += amount;
+
+    uint256 afterAnothers = k / self.reserves[betIndex];
+    reward = anothersReserves - afterAnothers;
+
+    uint256 ratio = (multiplier * afterAnothers) / anothersReserves;
+
+    for (uint64 i = 0; i < self.reserves.length; i++) {
+        if (i != betIndex) {
+            self.reserves[i] = (self.reserves[i] * ratio) / multiplier;
+        }
+    }
+}
+```
 
 ## Providing Liquidity
 
 ### Adding Liquidity
 
-Providing the amount of liquidity you want to add. Then smart contract will charge for equivalent value token and mint the amount of liquidity tokens for you.
+Providing the amount of liquidity you want to add. The smart contract will charge for equivalent value tokens and mint the number of liquidity tokens for you.
 
 valueToken = amountLiquidit \* totalValue / totalSupply
+
+{% code title="LiquidityPoolERC20.sol" %}
+```solidity
+/// @inheritdoc ILiquidityPoolERC20
+function addLiquidity(uint256 amount) external override {
+    uint256 value = _addLiquidity(amount);
+
+    IERC20(token).safeTransferFrom(msg.sender, address(this), value);
+}
+
+function _addLiquidity(uint256 amount) private returns (uint256 value) {
+    uint256 currentSupply = totalSupply();
+
+    if (currentSupply == 0) {
+        value = amount;
+    } else {
+        value = (amount * totalValue()) / currentSupply;
+    }
+
+    _mint(msg.sender, amount);
+}
+```
+{% endcode %}
+
+
 
 ### Removing Liquidity
 
 Providing the amount of liquidity you want to remove. Then smart contract will pay for equivalent value token and burn the amount of liquidity token for you.
 
+{% code title="LiquidityPoolERC20.sol" %}
+```solidity
+/// @inheritdoc ILiquidityPoolERC20
+function removeLiquidity(uint256 amount) external override {
+    uint256 value = _removeLiquidity(amount);
+
+    IERC20(token).safeTransfer(msg.sender, value);
+}
+
+function _removeLiquidity(uint256 amount) private returns (uint256 value) {
+    require(amount <= balanceOf(msg.sender), "liquidity influences");
+
+    value = (amount * totalValue()) / totalSupply();
+
+    _burn(msg.sender, amount);
+}
+```
+{% endcode %}
+
 
 
 ### Liquidity Fee
 
-There is a 1% of winer’s rewards will be charge for liquidity income.
+There is 1% of winner’s rewards will be charged for liquidity income.
 
+{% code title="Core.sol" %}
 ```solidity
 function resolveBet(uint256 tokenId) external {
     IBetNFT.Info memory betInfo = betNFT.getBet(tokenId);
@@ -153,11 +220,15 @@ function resolveBet(uint256 tokenId) external {
     betNFT.resolveBet(tokenId);
 }
 ```
+{% endcode %}
 
 
 
 ## Manage Condition
 
+### Create Condition
+
+{% code title="libraries/Condition.sol" %}
 ```solidity
 function createCondition(
     uint64[] calldata oddsList,
@@ -180,16 +251,105 @@ function createCondition(
     return lastConditionId;
 }
 ```
+{% endcode %}
 
+### Resolve Condition
 
+{% code title="" %}
+```solidity
+function resolveCondition(uint256 conditionId, uint64 outcomeWinIndex) external onlyOracle {
+    conditions[conditionId].resolveCondition(outcomeWinIndex);
+    pool.releaseValue(conditions[conditionId].reserve);
+}
+```
+{% endcode %}
 
+{% code title="libraries/Condition.sol" %}
+```solidity
+function resolveCondition(Condition.Info storage self, uint64 outcomeWinIndex) internal {
+    require(self.state == Condition.ConditionState.CREATED, "state must be CREATED");
 
+    require(block.timestamp >= self.endTime, "now must be greater than endTime");
 
+    self.state = ConditionState.RESOLVED;
+    self.outcomeWinIndex = outcomeWinIndex;
+}
+```
+{% endcode %}
 
+## Bet
 
+### bet
 
+{% code title="Core.sol" %}
+```solidity
+function bet(uint256 conditionId, uint64 betIndex, uint256 amount) public override returns (uint256 tokenId) {
+    IERC20(pool.token()).safeTransferFrom(msg.sender, address(pool), amount);
 
+    uint256 reward = conditions[conditionId].addReserve(betIndex, amount);
 
+    tokenId = betNFT.mint(msg.sender, conditionId, betIndex, amount, reward);
+}
+```
+{% endcode %}
 
-...
+{% code title="BetNFT.sol" %}
+```solidity
+function mint(
+    address account,
+    uint256 conditionId,
+    uint256 outcomeIndex,
+    uint256 amount,
+    uint256 reward
+) external override onlyCore returns (uint256) {
+    lastTokenId++;
 
+    _mint(account, lastTokenId);
+
+    IBetNFT.Info storage betInfo = bets[lastTokenId];
+    betInfo.state = BetState.CREATED;
+    betInfo.conditionId = conditionId;
+    betInfo.outcomeIndex = outcomeIndex;
+    betInfo.amount = amount;
+    betInfo.reward = reward;
+
+    emit MintedBet(lastTokenId);
+
+    return lastTokenId;
+}
+```
+{% endcode %}
+
+### Resolve Bet
+
+{% code title="Core.sol" %}
+```solidity
+function resolveBet(uint256 tokenId) external {
+    IBetNFT.Info memory betInfo = betNFT.getBet(tokenId);
+
+    Condition.Info storage conditionInfo = conditions[betInfo.conditionId];
+
+    require(conditionInfo.state == Condition.ConditionState.RESOLVED, "must be resolved first");
+
+    if (conditionInfo.outcomeWinIndex == betInfo.outcomeIndex) {
+        // There is a 1% of winer’s rewards will be charge for liquidity income.
+        uint256 reward = (betInfo.reward * (multiplier - fee)) / multiplier;
+        pool.pay(msg.sender, reward + betInfo.amount);
+    }
+
+    betNFT.resolveBet(tokenId);
+}
+```
+{% endcode %}
+
+{% code title="BetNFT.sol" %}
+```solidity
+function resolveBet(uint256 tokenId) external override onlyCore {
+    IBetNFT.Info storage bet = bets[tokenId];
+
+    require(bet.state == BetState.CREATED);
+
+    bet.state = BetState.RESOLVED;
+}
+```
+{% endcode %}
