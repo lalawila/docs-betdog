@@ -10,17 +10,17 @@ BetDog is a protocol for betting and prediction. It is designed around ease-of-u
 
 
 
+
+
 {% hint style="success" %}
-Github repository: [https://github.com/lalawila/betdog](https://github.com/lalawila/betdog)
+Code: [https://github.com/lalawila/betdog](https://github.com/lalawila/betdog)
 {% endhint %}
-
-
 
 ## Odds
 
 ### Oracle
 
-Odds list will be input by oracle such as chainlink when create condition.
+Odds will be input by oracle such as chainlink when create condition.
 
 The odds list example is `[4.27, 8.55, 1.42]`. That mean there are three outcomes. You will get `427` return if bet in outcome `0` . You will get `855` return if bet in outcome `1` . You will get `142` return if bet in outcome `2` .
 
@@ -32,25 +32,47 @@ introduced formula `x * y = k` from uniswap.
 
 
 
-### Example Of Betting
+### Example:
 
-If odds list is `[4, 1.25]`  then provide fixed ratio reserve like `[1000, 3000]`.&#x20;
+If there are two team game math that Apple team vs Banana team. Only two outcomes that Apple win or Banana win. The prediction probability is `[0.2, 0.8]` . Means Apple team has `0.2`
 
-Lilei bet 10 amount in outcome 0.  The reward is `3000 - 1000 * 3000 / ( 1000 + 10)= 29.7` . If outcome 0 is the right result, Lilei will get reword + bet amount = 39.7 amount.  Actual odds is `39.7 / 10 = 3.97` . Actual odds slightly lower than input odds. This is a bit like sliding point.
+probability to win and Banana team is `0.8` . Odds is `[5, 1.25]` .
 
+Apple team odds: 1 / 0.2 = 5, If you bet 1 Apple team win then you will get 5  return.
 
-
-This situation reflects the odds change in real time. Because the more people who bet on a outcome, the greater the chance of winning, the lower the odds.
-
-
+Banana team odds: 1 / 0.8 = 1.25, If you bet 1 Banana team win then you will get 1.25  return.
 
 
 
+Ok, Let's provide total reserve `5000` as liquidity from pool. The amount `5000` depend how much in pool and what we want.  The larger the number, the smaller the sliding point.
 
 
-``
+
+Then reserves is `[1000, 4000]` . This situation reflects the odds change in real time. Because the more people who bet on a outcome, the greater the chance of winning, the lower the odds.
+
+Apple team reserve:  5000 \* 0.2 = 1000
+
+Banana team reserve:  5000 \* 0.8 = 4000
 
 
+
+Lilei bet 10 amount in Apple team. &#x20;
+
+The reward is `4000 - 1000 * 4000 / ( 1000 + 10)=` 39.603960396 `` .&#x20;
+
+If Apple team win, Lilei will get `reward + bet` capital `= 49.6` amount.  Actual odds is `49.6 / 10 = 4.96` . Actual odds slightly lower than input odds. This is a bit like sliding point in uniswap.
+
+
+
+The reward and bet capital will be return right game over.
+
+The latest reverses is `[1010, 3950.4]` now.   The latest odds is `[4.91128712871, 1.25567031187]` now.
+
+
+
+Apple team odds:  (1010 + 3950.4) / 1010 = 4.91128712871
+
+Banana team odds:  (1010 + 3950.4) / 3950.4 = 1.25567031187
 
 
 
@@ -69,12 +91,6 @@ Providing the amount of liquidity you want to remove. Then smart contract will p
 #### Liquidity income
 
 The 5‰ of winer’s rewards will be charge for liquidity income.
-
-
-
-##
-
-
 
 ## Manage Condition
 
@@ -102,8 +118,6 @@ function createCondition(
 ```
 
 
-
-## Bet
 
 
 
