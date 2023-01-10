@@ -1,7 +1,5 @@
 # 😁 BetDog Whitepaper
 
-
-
 {% hint style="danger" %}
 **WORK IN PROGRESS**
 {% endhint %}
@@ -68,9 +66,7 @@ The odds are not constant over time.  The gas fee will be too high if oracle upd
 
 ### Example:
 
-If there are two team game math the Apple team vs Banana team. Only two outcomes Apple win or Banana win. The prediction probability is `[0.2, 0.8]` . This means the Apple team has a `20%`
-
-chance to win and the Banana team is `80%` .  The odds get from probability are `[5, 1.25]` .
+If there are two team game math the Apple team vs Banana team. Only two outcomes Apple win or Banana win. The prediction probability is `[0.2, 0.8]` . This means the Apple team has a `20%` chance to win and the Banana team is `80%` .  The odds get from probability are `[5, 1.25]` .
 
 
 
