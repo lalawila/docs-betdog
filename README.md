@@ -6,11 +6,7 @@
 
 ## Introduction
 
-BetDog is a protocol for betting and prediction. It is designed around ease-of-use, gas efficiency, and censorship resistance.
-
-
-
-
+BetDog is a protocol for betting and prediction. It is designed around ease of use, gas efficiency, and censorship resistance.
 
 {% hint style="success" %}
 Code: [https://github.com/lalawila/betdog](https://github.com/lalawila/betdog)
@@ -20,15 +16,53 @@ Code: [https://github.com/lalawila/betdog](https://github.com/lalawila/betdog)
 
 ### Oracle
 
-Odds will be input by oracle such as chainlink when create condition.
+Odds will be input by an oracle when creating a condition.
 
-The odds list example is `[4.27, 8.55, 1.42]`. That mean there are three outcomes. You will get `427` return if bet in outcome `0` . You will get `855` return if bet in outcome `1` . You will get `142` return if bet in outcome `2` .
+Examples of odds are`[2.5, 10, 2]`. This means there are three outcomes. You will get `2.5` a return if you bet `1` and win in 1st. You will get `10` a return if you bet `1` and win in 2nd. You will get `2` a return if you bet `1` and win in 3rd.&#x20;
+
+We can get probability from the odds.
+
+Probability of the first outcome winning: `1 / 2.5 = 0.4`
+
+Probability of the second outcome winning:  `1 / 10 = 0.1`
+
+Probability of the second outcome winning: `1 / 2 = 0.5`
+
+It's an error odds `[2, 4]` . Better will get stable profit just bet both of two outcomes. The probability of this odds are `[0.5, 0.25]`. Ensure the sum of probabilities must be greater than or equal to 1 can avoid this.
+
+{% code title="libraries/Condition.sol" %}
+```solidity
+function createCondition(
+    Condition.Info storage self,
+    uint64[] calldata odds,
+    uint256 reserve,
+    uint64 startTime,
+    uint64 endTime,
+    bytes32 ipfsHash
+) internal {
+    require(endTime > startTime, "end time must be greater than start time");
+
+    uint256 totalOdds = 0;
+    for (uint256 i = 0; i < odds.length; i++) {
+        totalOdds += multiplier ** 2 / odds[i];
+    }
+
+    // 1e4 is allowed tolerances
+    require(totalOdds >= (multiplier - 1e4), "sum of probabilities must be greater than or equal to 1");
+
+    self.state = Condition.ConditionState.CREATED;
+    self.reserves = calcReserve(odds, reserve);
+    self.startTime = startTime;
+    self.endTime = endTime;
+    self.reserve = reserve;
+    self.ipfsHash = ipfsHash;
+}
+```
+{% endcode %}
 
 ### Odds Change
 
-Odds are not constant over time.  Gas fee will be too high if update odss in real time by oracle.Thus&#x20;
-
-introduced formula `x * y = k` from uniswap.
+The odds are not constant over time.  The gas fee will be too high if oracle updates the odds in real time. Thus introduced formula `x * y = k` to solve the problem.
 
 
 
