@@ -64,25 +64,19 @@ function createCondition(
 
 The odds are not constant over time.  The gas fee will be too high if oracle updates the odds in real time. Thus introduced formula `x * y = k` to solve the problem.
 
-
-
 ### Example:
 
-If there are two team game math that Apple team vs Banana team. Only two outcomes that Apple win or Banana win. The prediction probability is `[0.2, 0.8]` . Means Apple team has `0.2`
+If there are two team game math the Apple team vs Banana team. Only two outcomes Apple win or Banana win. The prediction probability is `[0.2, 0.8]` . This means the Apple team has a `20%`
 
-probability to win and Banana team is `0.8` . Odds is `[5, 1.25]` .
-
-Apple team odds: 1 / 0.2 = 5, If you bet 1 Apple team win then you will get 5  return.
-
-Banana team odds: 1 / 0.8 = 1.25, If you bet 1 Banana team win then you will get 1.25  return.
+chance to win and the Banana team is `80%` .  The odds get from probability are `[5, 1.25]` .
 
 
 
-Ok, Let's provide total reserve `5000` as liquidity from pool. The amount `5000` depend how much in pool and what we want.  The larger the number, the smaller the sliding point.
+Ok, Let's provide total reserve `5000` as liquidity from the pool. The amount `5000` depends on us.  The larger the number, the smaller the sliding point.
 
 
 
-Then reserves is `[1000, 4000]` . This situation reflects the odds change in real time. Because the more people who bet on a outcome, the greater the chance of winning, the lower the odds.
+Then reserves are`[1000, 4000]` . This situation reflects the odds change in real-time. Because the more people who bet on an outcome, the greater the chance of winning, and the lower the odds.
 
 Apple team reserve:  5000 \* 0.2 = 1000
 
@@ -102,8 +96,6 @@ The reward and bet capital will be return right game over.
 
 The latest reverses is `[1010, 3950.4]` now.   The latest odds is `[4.91128712871, 1.25567031187]` now.
 
-
-
 Apple team odds:  (1010 + 3950.4) / 1010 = 4.91128712871
 
 Banana team odds:  (1010 + 3950.4) / 3950.4 = 1.25567031187
@@ -111,14 +103,6 @@ Banana team odds:  (1010 + 3950.4) / 3950.4 = 1.25567031187
 #### What if number of outcomes greater than 2 ?
 
 There `x * y = z` seem can only deal with  2  outcomes.
-
-
-
-
-
-
-
-
 
 ## Providing Liquidity
 
