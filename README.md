@@ -74,6 +74,16 @@ Apple team odds:  (1010 + 3950.4) / 1010 = 4.91128712871
 
 Banana team odds:  (1010 + 3950.4) / 3950.4 = 1.25567031187
 
+#### What if number of outcomes greater than 2 ?
+
+There `x * y = z` seem can only deal with  2  outcomes.
+
+
+
+
+
+
+
 
 
 ## Providing Liquidity
@@ -88,9 +98,31 @@ valueToken = amountLiquidit \* totalValue / totalSupply
 
 Providing the amount of liquidity you want to remove. Then smart contract will pay for equivalent value token and burn the amount of liquidity token for you.
 
-#### Liquidity income
 
-The 5‰ of winer’s rewards will be charge for liquidity income.
+
+### Liquidity Fee
+
+There is a 1% of winer’s rewards will be charge for liquidity income.
+
+```solidity
+function resolveBet(uint256 tokenId) external {
+    IBetNFT.Info memory betInfo = betNFT.getBet(tokenId);
+
+    Condition.Info storage conditionInfo = conditions[betInfo.conditionId];
+
+    require(conditionInfo.state == Condition.ConditionState.RESOLVED, "must be resolved first");
+
+    if (conditionInfo.outcomeWinIndex == betInfo.outcomeIndex) {
+        // There is a 1% of winer’s rewards will be charge for liquidity income.
+        uint256 reward = (betInfo.reward * (multiplier - fee)) / multiplier;
+        pool.pay(msg.sender, reward + betInfo.amount);
+    }
+
+    betNFT.resolveBet(tokenId);
+}
+```
+
+
 
 ## Manage Condition
 
@@ -116,6 +148,8 @@ function createCondition(
     return lastConditionId;
 }
 ```
+
+
 
 
 
