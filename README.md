@@ -1,5 +1,7 @@
 # 😁 BetDog Whitepaper
 
+
+
 {% hint style="danger" %}
 **WORK IN PROGRESS**
 {% endhint %}
@@ -82,17 +84,29 @@ Apple team reserve:  5000 \* 0.2 = 1000
 
 Banana team reserve:  5000 \* 0.8 = 4000
 
+{% code title="libraries/Condition.sol" %}
+```solidity
+function calcReserve(uint64[] calldata odds, uint256 totalReserve) internal pure returns (uint256[] memory reserves) {
+    reserves = new uint256[](odds.length);
+
+    for (uint64 i = 0; i < odds.length; i++) {
+        reserves[i] = (totalReserve * multiplier) / odds[i];
+    }
+}
+```
+{% endcode %}
 
 
-Lilei bet 10 amount in Apple team. &#x20;
-
-The reward is `4000 - 1000 * 4000 / ( 1000 + 10)=` 39.603960396 `` .&#x20;
-
-If Apple team win, Lilei will get `reward + bet` capital `= 49.6` amount.  Actual odds is `49.6 / 10 = 4.96` . Actual odds slightly lower than input odds. This is a bit like sliding point in uniswap.
 
 
 
-The reward and bet capital will be return right game over.
+If bet 10 amount in Apple team.  The reward is `4000 - 1000 * 4000 / ( 1000 + 10)=` 39.603960396 `` .&#x20;
+
+If the Apple team wins will get `reward + bet capital = 49.6` .  Actual odds is `49.6 / 10 = 4.96` . Actual odds are slightly lower than input odds. This is a bit like a sliding point in uniswap.
+
+
+
+The reward and bet capital will be returned right game over.
 
 The latest reverses is `[1010, 3950.4]` now.   The latest odds is `[4.91128712871, 1.25567031187]` now.
 
@@ -100,7 +114,7 @@ Apple team odds:  (1010 + 3950.4) / 1010 = 4.91128712871
 
 Banana team odds:  (1010 + 3950.4) / 3950.4 = 1.25567031187
 
-#### What if number of outcomes greater than 2 ?
+#### What if the number of outcomes is greater than 2?
 
 There `x * y = z` seem can only deal with  2  outcomes.
 
