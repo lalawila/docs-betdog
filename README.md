@@ -16,7 +16,7 @@ Website: still under development
 
 ## Odds
 
-### Odds
+### Input Odds
 
 Odds will be input by the oracle when creating a condition.
 
@@ -24,13 +24,13 @@ Examples of odds are`[2.5, 10, 2]`. This means there are three outcomes. You wil
 
 We can get probability from the odds.
 
+> Probability of the first outcome winning: `1 / 2.5 = 0.4`
+>
+> Probability of the second outcome winning:  `1 / 10 = 0.1`
+>
+> Probability of the second outcome winning: `1 / 2 = 0.5`
 
 
-Probability of the first outcome winning: `1 / 2.5 = 0.4`
-
-Probability of the second outcome winning:  `1 / 10 = 0.1`
-
-Probability of the second outcome winning: `1 / 2 = 0.5`
 
 It's an error odds `[2, 4]` . Better will get stable profit just bet both of two outcomes. The probability of these odds are `[0.5, 0.25]`. Ensure the sum of probabilities must be greater than or equal to 1 can avoid this.
 
