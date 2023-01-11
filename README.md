@@ -10,17 +10,21 @@ BetDog is a protocol for betting and prediction. It is designed around ease of u
 
 {% hint style="success" %}
 Code: [https://github.com/lalawila/betdog](https://github.com/lalawila/betdog)
+
+Website: still under development
 {% endhint %}
 
 ## Odds
 
-### Oracle
+### Odds
 
-Odds will be input by an oracle when creating a condition.
+Odds will be input by the oracle when creating a condition.
 
 Examples of odds are`[2.5, 10, 2]`. This means there are three outcomes. You will get `2.5` a return if you bet `1` and win in 1st. You will get `10` a return if you bet `1` and win in 2nd. You will get `2` a return if you bet `1` and win in 3rd.&#x20;
 
 We can get probability from the odds.
+
+
 
 Probability of the first outcome winning: `1 / 2.5 = 0.4`
 
@@ -28,7 +32,7 @@ Probability of the second outcome winning:  `1 / 10 = 0.1`
 
 Probability of the second outcome winning: `1 / 2 = 0.5`
 
-It's an error odds `[2, 4]` . Better will get stable profit just bet both of two outcomes. The probability of this odds are `[0.5, 0.25]`. Ensure the sum of probabilities must be greater than or equal to 1 can avoid this.
+It's an error odds `[2, 4]` . Better will get stable profit just bet both of two outcomes. The probability of these odds are `[0.5, 0.25]`. Ensure the sum of probabilities must be greater than or equal to 1 can avoid this.
 
 {% code title="libraries/Condition.sol" %}
 ```solidity
@@ -70,15 +74,15 @@ If there are two team game math the Apple team vs Banana team. Only two outcomes
 
 
 
-Ok, Let's provide total reserve `5000` as liquidity from the pool. The amount `5000` depends on us.  The larger the number, the smaller the sliding point.
+Ok, Let's provide total reserve `5000` as liquidity from the pool. The amount `5000` depends on us.  **The larger the number, the smaller the slippage.**
 
 
 
 Then reserves are`[1000, 4000]` . This situation reflects the odds change in real-time. Because the more people who bet on an outcome, the greater the chance of winning, and the lower the odds.
 
-Apple team reserve:  5000 \* 0.2 = 1000
-
-Banana team reserve:  5000 \* 0.8 = 4000
+> Apple team reserve:  5000 \* 0.2 = 1000
+>
+> Banana team reserve:  5000 \* 0.8 = 4000
 
 {% code title="libraries/Condition.sol" %}
 ```solidity
@@ -94,27 +98,30 @@ function calcReserve(uint64[] calldata odds, uint256 totalReserve) internal pure
 
 
 
-
-
 If bet 10 amount in Apple team.  The reward is `4000 - 1000 * 4000 / ( 1000 + 10)=` 39.603960396 `` .&#x20;
 
-If the Apple team wins will get `reward + bet capital = 49.6` .  Actual odds is `49.6 / 10 = 4.96` . Actual odds are slightly lower than input odds. This is a bit like a sliding point in uniswap.
+If the Apple team wins will get `reward + bet capital = 49.6` .  Actual odds is `49.6 / 10 = 4.96` . Actual odds are slightly lower than input odds.&#x20;
 
 
 
 The reward and bet capital will be returned when gaming is over.
 
-The latest reverses are`[1010, 3950.4]` now.   The latest odds is `[4.91128712871, 1.25567031187]` now.
+The latest reverses are`[1010, 3950.4]` so the latest odds are `[4.91128712871, 1.25567031187]` now.
 
-Apple team odds:  (1010 + 3950.4) / 1010 = 4.91128712871
-
-Banana team odds:  (1010 + 3950.4) / 3950.4 = 1.25567031187
+> Apple team odds:  (1010 + 3950.4) / 1010 = 4.91128712871
+>
+> Banana team odds:  (1010 + 3950.4) / 3950.4 = 1.25567031187
 
 #### What if the number of outcomes is greater than 2?
 
 The bet reserve can be considered as x. Other sums can be considered as y.
 
+
+
+{% code title="libraries/Condition.sol" %}
 ```solidity
+
+
 function addReserve(Condition.Info storage self, uint64 betIndex, uint256 amount) internal returns (uint256 reward) {
     uint256 total = totalReserves(self);
     uint256 anothersReserves = total - self.reserves[betIndex];
@@ -135,6 +142,7 @@ function addReserve(Condition.Info storage self, uint64 betIndex, uint256 amount
     }
 }
 ```
+{% endcode %}
 
 ## Providing Liquidity
 
@@ -142,7 +150,7 @@ function addReserve(Condition.Info storage self, uint64 betIndex, uint256 amount
 
 Providing the amount of liquidity you want to add. The smart contract will charge for equivalent value tokens and mint the number of liquidity tokens for you.
 
-valueToken = amountLiquidit \* totalValue / totalSupply
+
 
 {% code title="LiquidityPoolERC20.sol" %}
 ```solidity
@@ -171,7 +179,7 @@ function _addLiquidity(uint256 amount) private returns (uint256 value) {
 
 ### Removing Liquidity
 
-Providing the amount of liquidity you want to remove. Then smart contract will pay for equivalent value token and burn the amount of liquidity token for you.
+Providing the amount of liquidity you want to remove. Then the smart contract will burn liquidity tokens and return equivalent value tokens for you.
 
 {% code title="LiquidityPoolERC20.sol" %}
 ```solidity
@@ -196,7 +204,7 @@ function _removeLiquidity(uint256 amount) private returns (uint256 value) {
 
 ### Liquidity Fee
 
-There is 1% of winner’s rewards will be charged for liquidity income.
+1% of the winner’s rewards will be charged for liquidity income.
 
 {% code title="Core.sol" %}
 ```solidity
@@ -222,12 +230,22 @@ function resolveBet(uint256 tokenId) external {
 
 ## Manage Condition
 
-### Create Condition
+### Creating Condition
 
-{% code title="libraries/Condition.sol" %}
+* Lock values of total reserves in the pool
+* Save condition info
+* Calculate reserve for each outcome by odds
+
+{% code title="Core.sol" %}
 ```solidity
+/// @notice Oracle: Create new condition.
+/// @param odds Odds for outcomes such as [4.27, 8.55, 1.42]
+/// @param reserve The amount of reserve will be locked in the pool
+/// @param startTime The start time of betting
+/// @param endTime The end time of betting
+/// @param ipfsHash detailed info about match stored in IPFS
 function createCondition(
-    uint64[] calldata oddsList,
+    uint64[] calldata odds,
     uint256 reserve,
     uint64 startTime,
     uint64 endTime,
@@ -241,7 +259,7 @@ function createCondition(
 
     Condition.Info storage conditionInfo = conditions[lastConditionId];
 
-    conditionInfo.createCondition(oddsList, reserve, startTime, endTime, ipfsHash);
+    conditionInfo.createCondition(odds, reserve, startTime, endTime, ipfsHash);
 
     emit CreatedCondition(lastConditionId);
     return lastConditionId;
@@ -249,9 +267,43 @@ function createCondition(
 ```
 {% endcode %}
 
-### Resolve Condition
+{% code title="libraries/Condition.sol" %}
+```solidity
+function createCondition(
+    Condition.Info storage self,
+    uint64[] calldata odds,
+    uint256 reserve,
+    uint64 startTime,
+    uint64 endTime,
+    bytes32 ipfsHash
+) internal {
+    require(endTime > startTime, "end time must be greater than start time");
 
-{% code title="" %}
+    uint256 totalOdds = 0;
+    for (uint256 i = 0; i < odds.length; i++) {
+        totalOdds += multiplier ** 2 / odds[i];
+    }
+
+    // 1e4 is allowed tolerances
+    require(totalOdds >= (multiplier - 1e4), "sum of probabilities must be greater than or equal to 1");
+
+    self.state = Condition.ConditionState.CREATED;
+    self.reserves = calcReserve(odds, reserve);
+    self.startTime = startTime;
+    self.endTime = endTime;
+    self.reserve = reserve;
+    self.ipfsHash = ipfsHash;
+}
+```
+{% endcode %}
+
+### Resolving Condition
+
+* Save the index of the victory
+* Change the state to RESOLVED
+* Release the locked values in the pool
+
+{% code title="Core.sol" %}
 ```solidity
 function resolveCondition(uint256 conditionId, uint64 outcomeWinIndex) external onlyOracle {
     conditions[conditionId].resolveCondition(outcomeWinIndex);
@@ -273,9 +325,9 @@ function resolveCondition(Condition.Info storage self, uint64 outcomeWinIndex) i
 ```
 {% endcode %}
 
-## Bet
+## Betting
 
-### bet
+### Betting
 
 {% code title="Core.sol" %}
 ```solidity
@@ -316,7 +368,7 @@ function mint(
 ```
 {% endcode %}
 
-### Resolve Bet
+### Resolving Betting
 
 {% code title="Core.sol" %}
 ```solidity
@@ -341,11 +393,11 @@ function resolveBet(uint256 tokenId) external {
 {% code title="BetNFT.sol" %}
 ```solidity
 function resolveBet(uint256 tokenId) external override onlyCore {
-    IBetNFT.Info storage bet = bets[tokenId];
+    IBetNFT.Info storage betInfo = bets[tokenId];
 
-    require(bet.state == BetState.CREATED);
+    require(betInfo.state == BetState.CREATED);
 
-    bet.state = BetState.RESOLVED;
+    betInfo.state = BetState.RESOLVED;
 }
 ```
 {% endcode %}
