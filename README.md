@@ -28,7 +28,7 @@ We can get probability from the odds.
 >
 > Probability of the second outcome winning:  `1 / 10 = 0.1`
 >
-> Probability of the second outcome winning: `1 / 2 = 0.5`
+> Probability of the third outcome winning: `1 / 2 = 0.5`
 
 
 
