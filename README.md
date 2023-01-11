@@ -114,7 +114,7 @@ The latest reverses are`[1010, 3950.4]` so the latest odds are `[4.91128712871, 
 
 #### What if the number of outcomes is greater than 2?
 
-The bet reserve can be considered as x. Other sums can be considered as y.
+The bet reserve can be considered as x. Sum of others can be considered as y.
 
 
 
